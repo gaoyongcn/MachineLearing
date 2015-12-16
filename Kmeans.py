@@ -11,7 +11,7 @@ import pandas as pd
 import matplotlib
 import matplotlib.pyplot as plt
 def loadDataSet_train(path_read):
-    os.chdir("/home/gaoyong/data")
+    os.chdir("data/")
     df = pd.read_csv(path_read, sep='\t', header=0, dtype=str, na_filter=False)
     return df
 def distEclud(vecA, vecB):
