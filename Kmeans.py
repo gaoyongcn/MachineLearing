@@ -161,7 +161,6 @@ if __name__ == "__main__":
     
     p2.plot(x, SCPlus, 'b*')
     p2.plot(x, SCPlus, 'r-')
-    p2.set_ylabel("SC")   
     p2.grid(True)
     p2.set_title("Keans++ SC/SSE")
     p3.plot(x, SSE, 'r*')
@@ -173,6 +172,5 @@ if __name__ == "__main__":
     p4.plot(x, SSEPlus, 'b*')
     p4.plot(x, SSEPlus, 'r-')
     p4.set_xlabel("K")
-    p4.set_ylabel("SSEPlus")
     p4.grid(True)  
 
