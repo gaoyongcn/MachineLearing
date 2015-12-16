@@ -39,42 +39,42 @@ def randCent(dataSet, k):
         maxJ = max(dataSet[:,j])
         rangeJ = float(maxJ - minJ)
         centroids[:,j] = minJ + rangeJ*np.random.rand(k,1)
-    return centroids 
+    return centroids
     
+def KmeansPlusCent(dataSet, k, distMeas=distEclud):
+    """
+    Kmeans++采用的质心初始化方式
+    """
+    num_rows = dataSet.shape[0]
+    list_k =[]
+    k_init = random.randint(0, num_rows-1)
+    k_nearest=k_init
+    list_k.append(k_init)
+    for i in range(1, k):
+        maxdist = -np.inf
+        maxIndex = -1
+        for j in range(num_rows):
+            if (j in list_k):
+                continue
+            else:
+                dist = distMeas(dataSet[j], dataSet[k_nearest])
+                if dist > maxdist:
+                    maxIndex = j
+                    maxdist = dist
+        k_nearest = maxIndex
+        list_k.append(maxIndex)
+    centroids = np.mat(dataSet[list_k])
+    return centroids
+                
 def selectCent(dataSet, k):
     """
     从样本点中随机生成K个质心
     """
     num_rows = dataSet.shape[0]
-    #在范围A～B内随机生成n个不重复随机数random.sample(range(A,B+1),n)
     list_k = sorted(random.sample(range(0,num_rows),k))
     centroids = np.mat(dataSet[list_k])
     return centroids
-      
-def Kmeans(dataSet, k_clusters, distMeas =distEclud, createCent =selectCent):
-    dataSet = np.asarray(dataSet)
-    num_rows = dataSet.shape[0]
-    clusterAssment = np.matrix(np.zeros([num_rows, 2]))
-    centroids = createCent(dataSet, k_clusters)
-    clusterChanged = True
-    while clusterChanged:
-        clusterChanged = False
-        for i in range(num_rows):
-            minDist = np.inf
-            minIndex = -1
-            for j  in range(k_clusters):
-                dist_ij = distMeas(dataSet[i], np.array(centroids[j]))
-                if dist_ij <minDist:
-                    minDist = dist_ij; minIndex = j
-            if clusterAssment[i, 0] != minIndex: clusterChanged = True
-            clusterAssment[i, :] = minIndex, minDist
-        if not clusterChanged:
-            break
-        #更新质心 
-        for i in range(k_clusters):
-            ptsInClust= dataSet[np.nonzero(clusterAssment[:,0].A == i)[0]]
-            centroids[i,:] = np.mean(ptsInClust, axis = 0)
-    return centroids, clusterAssment
+
 def calSC(dataSet, clusterAssment, k_clusters, distMeas =distEclud):
     """
     计算轮廓系数
@@ -101,8 +101,32 @@ def calSC(dataSet, clusterAssment, k_clusters, distMeas =distEclud):
                 s = -1
             S.append(s)
     return S, sum(S)/len(S)
-            
-        
+       
+def Kmeans(dataSet, k_clusters, distMeas=distEclud, createCent=KmeansPlusCent):
+    dataSet = np.asarray(dataSet)
+    num_rows = dataSet.shape[0]
+    clusterAssment = np.matrix(np.zeros([num_rows, 2]))
+    centroids = createCent(dataSet, k_clusters)
+    clusterChanged = True
+    while clusterChanged:
+        clusterChanged = False
+        for i in range(num_rows):
+            minDist = np.inf
+            minIndex = -1
+            for j  in range(k_clusters):
+                dist_ij = distMeas(dataSet[i], np.array(centroids[j]))
+                if dist_ij <minDist:
+                    minDist = dist_ij; minIndex = j
+            if clusterAssment[i, 0] != minIndex: clusterChanged = True
+            clusterAssment[i, :] = minIndex, minDist
+        if not clusterChanged:
+            break
+        #更新质心 
+        for i in range(k_clusters):
+            ptsInClust= dataSet[np.nonzero(clusterAssment[:,0].A == i)[0]]
+            centroids[i,:] = np.mean(ptsInClust, axis = 0)
+    return centroids, clusterAssment
+           
 if __name__ == "__main__":
     path_read = "cluster.txt"
     k_clusters=10
