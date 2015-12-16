@@ -1,4 +1,5 @@
 ![](./img/Kmeans.png)
+
 Kmeans算法和Kmeas++算法比较结果如上图所示：
 ##Kmeans简要介绍
 1. 从D中随机取k个元素，作为k个簇的各自的中心。
