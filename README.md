@@ -1,4 +1,4 @@
-![](./img/Kmeans.png ==300x300)
+![](./img/Kmeans.png)
 
 Kmeans算法和Kmeas++算法比较结果如上图所示：
 ##Kmeans简要介绍
