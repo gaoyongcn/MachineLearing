@@ -6,17 +6,32 @@ Created on Mon Dec 14 18:54:58 2015
 """
 import os
 import math
+import random
 import numpy as np
 import pandas as pd
 import matplotlib
 import matplotlib.pyplot as plt
+
 def loadDataSet_train(path_read):
     os.chdir("data/")
     df = pd.read_csv(path_read, sep='\t', header=0, dtype=str, na_filter=False)
     return df
+    
 def distEclud(vecA, vecB):
+    """
+    欧式集合距离计算
+    """
     return math.sqrt(sum(np.power((vecA-vecB).flatten().tolist(), 2)))
+def distManha(vecA, vecB):
+    """
+    曼哈顿距离计算
+    """
+    return sum(np.abs(vecA-vecB))
+    
 def randCent(dataSet, k):
+    """
+    随机生成K个质心
+    """
     n = dataSet.shape[1]
     centroids = np.mat(np.zeros([k,n]))
     for j in range(n):
@@ -25,10 +40,18 @@ def randCent(dataSet, k):
         rangeJ = float(maxJ - minJ)
         centroids[:,j] = minJ + rangeJ*np.random.rand(k,1)
     return centroids 
-#def selectCent(dataSet, k):
-#    n = dataSet.shape[1]
-#    list_k = [ for i in range(k)]
-def Kmeans(dataSet, k_clusters, distMeas =distEclud, createCent =randCent):
+    
+def selectCent(dataSet, k):
+    """
+    从样本点中随机生成K个质心
+    """
+    num_rows = dataSet.shape[0]
+    #在范围A～B内随机生成n个不重复随机数random.sample(range(A,B+1),n)
+    list_k = sorted(random.sample(range(0,num_rows),k))
+    centroids = np.mat(dataSet[list_k])
+    return centroids
+      
+def Kmeans(dataSet, k_clusters, distMeas =distEclud, createCent =selectCent):
     dataSet = np.asarray(dataSet)
     num_rows = dataSet.shape[0]
     clusterAssment = np.matrix(np.zeros([num_rows, 2]))
@@ -53,6 +76,9 @@ def Kmeans(dataSet, k_clusters, distMeas =distEclud, createCent =randCent):
             centroids[i,:] = np.mean(ptsInClust, axis = 0)
     return centroids, clusterAssment
 def calSC(dataSet, clusterAssment, k_clusters, distMeas =distEclud):
+    """
+    计算轮廓系数
+    """
     S = []
     dataSet = np.asarray(dataSet)
     for i in range(k_clusters):        
