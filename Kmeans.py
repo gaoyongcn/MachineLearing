@@ -100,9 +100,9 @@ def calSC(dataSet, clusterAssment, k_clusters, distMeas =distEclud):
             else:
                 s = -1
             S.append(s)
-    return S, sum(S)/len(S)
+    return sum(S)/len(S)
        
-def Kmeans(dataSet, k_clusters, distMeas=distEclud, createCent=KmeansPlusCent):
+def Kmeans(dataSet, k_clusters, createCent=KmeansPlusCent, distMeas=distEclud):
     dataSet = np.asarray(dataSet)
     num_rows = dataSet.shape[0]
     clusterAssment = np.matrix(np.zeros([num_rows, 2]))
@@ -131,16 +131,48 @@ if __name__ == "__main__":
     path_read = "cluster.txt"
     k_clusters=10
     df = loadDataSet_train(path_read)
-    SSE = []
     SC = []
+    SSE = []
+    SCPlus = []
+    SSEPlus = []
     dataSet = np.matrix(df).astype(np.float)
     for i in range(2, k_clusters+1):
-        centroids, clusterAssment = Kmeans(dataSet, i)
+        centroids, clusterAssment = Kmeans(dataSet, i, randCent)
         sse = np.sum(clusterAssment[:,1])
         SSE.append(sse)
-        S, sc = calSC(dataSet, clusterAssment, i)
+        sc = calSC(dataSet, clusterAssment, i)
         SC.append(sc)
-    plt.plot(range(2, k_clusters+1), SC, 'r*')
-    plt.plot(range(2, k_clusters+1), SC, 'b-')
-#    plt.plot(range(2, k_clusters+1), SC, 'r*')
-#    plt.plot(range(2, k_clusters+1), SC, 'b-')
+        centroidsPlus, clusterAssmentPlus = Kmeans(dataSet, i)
+        ssePlus = np.sum(clusterAssmentPlus[:,1])
+        SSEPlus.append(ssePlus) 
+        scPlus = calSC(dataSet, clusterAssmentPlus, i)
+        SCPlus.append(scPlus)
+    plt.figure(figsize=(8,7),dpi=98)
+    p1 = plt.subplot(221)    
+    p2 = plt.subplot(222)
+    p3 = plt.subplot(223)
+    p4 = plt.subplot(224)
+    x = range(2, k_clusters+1)
+    p1.plot(x, SC, 'r*')
+    p1.plot(x, SC, 'b-')
+    p1.set_ylabel("SC")
+    p1.grid(True)
+    p1.set_title("Keans SC/SSE")
+    
+    p2.plot(x, SCPlus, 'b*')
+    p2.plot(x, SCPlus, 'r-')
+    p2.set_ylabel("SC")   
+    p2.grid(True)
+    p2.set_title("Keans++ SC/SSE")
+    p3.plot(x, SSE, 'r*')
+    p3.plot(x, SSE, 'b-')
+    p3.set_xlabel("K")
+    p3.set_ylabel("SSE")
+    p3.grid(True)
+    
+    p4.plot(x, SSEPlus, 'b*')
+    p4.plot(x, SSEPlus, 'r-')
+    p4.set_xlabel("K")
+    p4.set_ylabel("SSEPlus")
+    p4.grid(True)  
+
