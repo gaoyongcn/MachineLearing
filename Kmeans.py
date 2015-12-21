@@ -41,31 +41,61 @@ def randCent(dataSet, k):
         centroids[:,j] = minJ + rangeJ*np.random.rand(k,1)
     return centroids
     
-def KmeansPlusCent(dataSet, k, distMeas=distEclud):
+#def KmeansPlusCent(dataSet, k, distMeas=distEclud):
+#    """
+#    Kmeans++采用的质心初始化方式
+#    """
+#    num_rows = dataSet.shape[0]
+#    list_k =[]
+#    D=[]
+#    k_init = random.randint(0, num_rows-1)
+#    k_nearest=k_init
+#    list_k.append(k_init)
+#    for i in range(1, k):
+#        maxdist = -np.inf
+#        maxIndex = -1
+#        for j in range(num_rows):
+#            if (j in list_k):
+#                continue
+#            else:hostapd-psk
+#                dist = distMeas(dataSet[j], dataSet[k_nearest])
+#                if dist > maxdist:
+#                    maxIndex = j
+#                    maxdist = dist
+#        k_nearest = maxIndex
+#        list_k.append(maxIndex)
+#    centroids = np.mat(dataSet[list_k])
+#    return centroids
+ 
+def KmeansPlusCent(dataSet, k_cluster, distMeas=distEclud):
     """
     Kmeans++采用的质心初始化方式
     """
     num_rows = dataSet.shape[0]
-    list_k =[]
+    center_k =[]    
     k_init = random.randint(0, num_rows-1)
-    k_nearest=k_init
-    list_k.append(k_init)
-    for i in range(1, k):
-        maxdist = -np.inf
-        maxIndex = -1
-        for j in range(num_rows):
-            if (j in list_k):
-                continue
-            else:
-                dist = distMeas(dataSet[j], dataSet[k_nearest])
-                if dist > maxdist:
-                    maxIndex = j
-                    maxdist = dist
-        k_nearest = maxIndex
-        list_k.append(maxIndex)
-    centroids = np.mat(dataSet[list_k])
+    center_k.append(k_init)
+    for i in range(1, k_cluster):
+        D=[]
+        for j in range(0, num_rows):
+            tempSet = dataSet[center_k]
+            minDist = np.inf
+            for k in range(tempSet.shape[0]):
+                dist = distMeas(dataSet[j],tempSet[k])
+                if dist < minDist:
+                    minDist = dist;
+            D.append(minDist)
+        sum_random = random.uniform(0, sum(D))
+        for j in range(0, num_rows):
+            sum_random = sum_random - D[j]           
+            if(sum_random <= 0):
+               print sum_random
+               center_k.append(j)
+               break
+    centroids = np.mat(dataSet[center_k])
     return centroids
-                
+
+               
 def selectCent(dataSet, k):
     """
     从样本点中随机生成K个质心
@@ -139,6 +169,7 @@ if __name__ == "__main__":
     for i in range(2, k_clusters+1):
         centroids, clusterAssment = Kmeans(dataSet, i, randCent)
         sse = np.sum(clusterAssment[:,1])
+        math.pow(sse,2)
         SSE.append(sse)
         sc = calSC(dataSet, clusterAssment, i)
         SC.append(sc)
@@ -172,5 +203,5 @@ if __name__ == "__main__":
     p4.plot(x, SSEPlus, 'b*')
     p4.plot(x, SSEPlus, 'r-')
     p4.set_xlabel("K")
-    p4.grid(True)  
+    p4.grid(True)
 
